@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>¿Quién Roba? </title>
+    <title>¿Quién Roba? - El Juego</title>
     <style>
         /* Paleta de colores: Violeta y Negro */
         body {
@@ -37,47 +37,84 @@
             border-radius: 20px;
             border: 2px solid #8a2be2;
             box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
-            max-width: 90%;
+            max-width: 95%;
         }
 
         .person-card {
             text-align: center;
-            width: 250px;
+            width: 280px; /* Un poco más ancha para mejor visibilidad */
+            display: flex;
+            flex-direction: column;
         }
 
         .photo-frame {
             width: 100%;
-            height: 350px;
+            height: 380px; /* Altura fija para mantener simetría */
             border-radius: 15px;
             overflow: hidden;
-            border: 3px solid #333;
-            background-color: #222;
+            border: 2px solid #333;
+            background-color: #0c0c0c; /* Fondo oscuro para fotos que no llenan el ancho */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .photo-frame img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            max-width: 100%;
+            max-height: 100%;
+            /* 'contain' asegura que la foto se vea COMPLETA sin cortarse */
+            object-fit: contain; 
         }
 
         .name-label {
-            margin-top: 10px;
-            font-size: 1.2rem;
+            margin-top: 12px;
+            font-size: 1.3rem;
             font-weight: bold;
             color: #fff;
         }
 
+        /* Estilos de Porcentaje */
+        .stat-container {
+            margin-top: 8px;
+            background: #333;
+            border-radius: 10px;
+            height: 15px;
+            width: 80%;
+            align-self: center; /* Centra la barra de carga */
+            overflow: hidden;
+        }
+
+        .stat-bar {
+            background: #8a2be2;
+            height: 100%;
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .percentage-text {
+            font-size: 1rem;
+            color: #d199ff;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
         .vote-btn {
-            margin-top: 10px;
-            padding: 15px 25px; /* Más grande para celular */
+            margin-top: 15px;
+            padding: 15px;
             background-color: #8a2be2;
             color: white;
             border: none;
-            border-radius: 50px;
-            cursor: pointer;
+            border-radius: 12px;
+            font-size: 1rem;
             font-weight: bold;
-            width: 100%; /* Botón ancho en móvil */
-            transition: transform 0.2s, background-color 0.3s;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .vote-btn:active {
+            background-color: #a044ff;
+            transform: scale(0.98);
         }
 
         .vs {
@@ -86,29 +123,17 @@
             color: #8a2be2;
         }
 
-        /* --- AJUSTES PARA CELULAR --- */
+        /* AJUSTES PARA CELULAR */
         @media (max-width: 600px) {
             .game-container {
-                flex-direction: column; /* Apila uno arriba del otro */
+                flex-direction: column;
                 width: 100%;
                 padding: 15px;
+                gap: 10px;
             }
-
-            .person-card {
-                width: 100%; /* Las fotos ocupan el ancho disponible */
-            }
-
-            .photo-frame {
-                height: 300px; /* Un poco más bajas para que entren ambas en pantalla */
-            }
-
-            .vs {
-                margin: 10px 0;
-            }
-            
-            h1 {
-                font-size: 1.2rem;
-            }
+            .person-card { width: 100%; }
+            .photo-frame { height: 320px; } /* Ajuste de altura para pantallas pequeñas */
+            .vs { margin: 5px 0; }
         }
     </style>
 </head>
@@ -116,12 +141,16 @@
 
     <h1>¿Quién está robando?</h1>
 
-    <div class="game-container">
+    <div class="game-container" id="board">
         <div class="person-card">
             <div class="photo-frame">
                 <img id="img-hombre" src="" alt="Hombre">
             </div>
             <div id="nombre-hombre" class="name-label">Nombre 1</div>
+            <div class="percentage-text" id="pct-h-text">0%</div>
+            <div class="stat-container">
+                <div class="stat-bar" id="bar-h"></div>
+            </div>
             <button class="vote-btn" onclick="votar()">Él roba</button>
         </div>
 
@@ -132,19 +161,23 @@
                 <img id="img-mujer" src="" alt="Mujer">
             </div>
             <div id="nombre-mujer" class="name-label">Nombre 2</div>
+            <div class="percentage-text" id="pct-m-text">0%</div>
+            <div class="stat-container">
+                <div class="stat-bar" id="bar-m"></div>
+            </div>
             <button class="vote-btn" onclick="votar()">Ella roba</button>
         </div>
     </div>
 
     <script>
         const parejas = [
-            { h: "Toti", m: "Abril", imgH: "Toti.jpg", imgM: "Abril.jpg" },
-            { h: "Santiago", m: "Brisa", imgH: "tutu.jpg", imgM: "Brisa.jpg" },
-            { h: "Walter", m: "Lola", imgH: "walter.jpg", imgM: "Lola.jpg" },
-            { h: "Benja", m: "Pilar", imgH: "Benja.jpg", imgM: "pilar.jpg" },
-            { h: "Juanma", m: "Lujan", imgH: "Juanma.jpg", imgM: "Lujan.jpg" },
+            { h: "Toti", m: "Abril", imgH: "toti.jpg", imgM: "abril.jpg" },
+            { h: "Santiago", m: "Brisa", imgH: "tutu.jpg", imgM: "brisa.jpg" },
+            { h: "Walter", m: "Lola", imgH: "walter.jpg", imgM: "lola.jpg" },
+            { h: "Benja", m: "Pilar", imgH: "benja.jpg", imgM: "pilar.jpg" },
+            { h: "Juanma", m: "Lujan", imgH: "juanma.jpg", imgM: "lujan.jpg" },
             { h: "Nico", m: "Naza", imgH: "nico.jpg", imgM: "naza.jpg" },
-            { h: "Mateo", m: "Belen", imgH: "Mateo.jpg", imgM: "Belu.jpg" },
+            { h: "Mateo", m: "Belen", imgH: "mateo.jpg", imgM: "belu.jpg" },
         ];
 
         let indiceActual = 0;
@@ -152,13 +185,36 @@
         function cargarPareja() {
             if (indiceActual < parejas.length) {
                 const pareja = parejas[indiceActual];
-                document.getElementById('nombre-hombre').textContent = pareja.h;
-                document.getElementById('nombre-mujer').textContent = pareja.m;
+                
+                // Cambiar imágenes y nombres
                 document.getElementById('img-hombre').src = pareja.imgH;
                 document.getElementById('img-mujer').src = pareja.imgM;
-                window.scrollTo(0,0); // Sube al inicio al cambiar de pareja
+                document.getElementById('nombre-hombre').textContent = pareja.h;
+                document.getElementById('nombre-mujer').textContent = pareja.m;
+
+                // Resetear porcentajes visuales antes de mostrar los nuevos (efecto estético)
+                document.getElementById('bar-h').style.width = "0%";
+                document.getElementById('bar-m').style.width = "0%";
+
+                // Simular nuevos porcentajes
+                setTimeout(() => {
+                    let randomPctH = Math.floor(Math.random() * 70) + 15;
+                    let randomPctM = 100 - randomPctH;
+
+                    document.getElementById('bar-h').style.width = randomPctH + "%";
+                    document.getElementById('pct-h-text').textContent = randomPctH + "%";
+                    
+                    document.getElementById('bar-m').style.width = randomPctM + "%";
+                    document.getElementById('pct-m-text').textContent = randomPctM + "%";
+                }, 100);
+
+                window.scrollTo(0,0);
             } else {
-                document.querySelector('.game-container').innerHTML = "<h2 style='text-align:center; padding: 20px;'>¡No hay más parejas por hoy!</h2>";
+                document.getElementById('board').innerHTML = `
+                    <div style='text-align:center; padding: 40px;'>
+                        <h2 style='color:#8a2be2'>¡Fin del juego!</h2>
+                        <button class='vote-btn' onclick='location.reload()'>Jugar de nuevo</button>
+                    </div>`;
             }
         }
 
@@ -170,5 +226,4 @@
         window.onload = cargarPareja;
     </script>
 </body>
-
 </html>

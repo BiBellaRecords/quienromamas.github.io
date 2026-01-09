@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Quién Roba? - El Juego</title>
+    <style>
+        /* Paleta de colores: Violeta y Negro */
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+
+        h1 {
+            color: #8a2be2;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .game-container {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid #8a2be2;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+            max-width: 90%;
+        }
+
+        .person-card {
+            text-align: center;
+            width: 250px;
+        }
+
+        .photo-frame {
+            width: 100%;
+            height: 350px;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid #333;
+            background-color: #222;
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .name-label {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .vote-btn {
+            margin-top: 10px;
+            padding: 15px 25px; /* Más grande para celular */
+            background-color: #8a2be2;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%; /* Botón ancho en móvil */
+            transition: transform 0.2s, background-color 0.3s;
+        }
+
+        .vs {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #8a2be2;
+        }
+
+        /* --- AJUSTES PARA CELULAR --- */
+        @media (max-width: 600px) {
+            .game-container {
+                flex-direction: column; /* Apila uno arriba del otro */
+                width: 100%;
+                padding: 15px;
+            }
+
+            .person-card {
+                width: 100%; /* Las fotos ocupan el ancho disponible */
+            }
+
+            .photo-frame {
+                height: 300px; /* Un poco más bajas para que entren ambas en pantalla */
+            }
+
+            .vs {
+                margin: 10px 0;
+            }
+            
+            h1 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>¿Quién está robando?</h1>
+
+    <div class="game-container">
+        <div class="person-card">
+            <div class="photo-frame">
+                <img id="img-hombre" src="" alt="Hombre">
+            </div>
+            <div id="nombre-hombre" class="name-label">Nombre 1</div>
+            <button class="vote-btn" onclick="votar()">Él roba</button>
+        </div>
+
+        <div class="vs">VS</div>
+
+        <div class="person-card">
+            <div class="photo-frame">
+                <img id="img-mujer" src="" alt="Mujer">
+            </div>
+            <div id="nombre-mujer" class="name-label">Nombre 2</div>
+            <button class="vote-btn" onclick="votar()">Ella roba</button>
+        </div>
+    </div>
+
+    <script>
+        const parejas = [
+            { h: "Toti", m: "Abril", imgH: "toti.jpg", imgM: "abril.jpg" },
+            { h: "Santiago", m: "Brisa", imgH: "tutu.jpg", imgM: "brisa.jpg" },
+            { h: "Walter", m: "Lola", imgH: "walter.jpg", imgM: "lola.jpg" },
+            { h: "Benja", m: "Pilar", imgH: "benja.jpg", imgM: "pilar.jpg" },
+            { h: "Juanma", m: "Lujan", imgH: "juanma.jpg", imgM: "lujan.jpg" },
+            { h: "Nico", m: "Naza", imgH: "nico.jpg", imgM: "naza.jpg" },
+            { h: "Mateo", m: "Belen", imgH: "mateo.jpg", imgM: "belu.jpg" },
+        ];
+
+        let indiceActual = 0;
+
+        function cargarPareja() {
+            if (indiceActual < parejas.length) {
+                const pareja = parejas[indiceActual];
+                document.getElementById('nombre-hombre').textContent = pareja.h;
+                document.getElementById('nombre-mujer').textContent = pareja.m;
+                document.getElementById('img-hombre').src = pareja.imgH;
+                document.getElementById('img-mujer').src = pareja.imgM;
+                window.scrollTo(0,0); // Sube al inicio al cambiar de pareja
+            } else {
+                document.querySelector('.game-container').innerHTML = "<h2 style='text-align:center; padding: 20px;'>¡No hay más parejas por hoy!</h2>";
+            }
+        }
+
+        function votar() {
+            indiceActual++;
+            cargarPareja();
+        }
+
+        window.onload = cargarPareja;
+    </script>
+</body>
+</html>
